@@ -1,5 +1,5 @@
 {
-  "name": "tediousHelper",
+  "name": "tedious-helper",
   "version": "1.0.0",
   "description": "Simple promise-based utility for tedious to make queries easier",
   "main": "index.js",
@@ -14,6 +14,6 @@
     "lodash": "^4.17.15"
   },
   "peerDependencies": {
-    "tedious": "3.x <= 8.x"
+    "tedious": "3.x <=8.x"
   }
 }
