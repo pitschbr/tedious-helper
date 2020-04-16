@@ -1,6 +1,6 @@
 {
   "name": "tedious-helper",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Simple promise-based utility for tedious to make queries easier",
   "main": "index.js",
   "scripts": {
