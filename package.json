@@ -1,6 +1,6 @@
 {
   "name": "@pitschbr/tedious-helper",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Simple promise-based utility for tedious to make queries easier",
   "main": "index.js",
   "homepage": "https://github.com/pitschbr/tedious-helper",
