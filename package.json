@@ -3,12 +3,15 @@
   "version": "1.1.0",
   "description": "Simple promise-based utility for tedious to make queries easier",
   "main": "index.js",
+  "homepage": "https://github.com/pitschbr/tedious-helper",
+  "bugs": "https://github.com/pitschbr/tedious-helper/issues",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["node", "tedious", "promise"],
-  "author": "",
+  "author": "Brian Pitsch",
   "license": "ISC",
+  "repository": "github:pitschbr/tedious-helper",
   "dependencies": {
     "debug": "^4.1.1",
     "lodash": "^4.17.15"
