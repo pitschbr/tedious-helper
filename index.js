@@ -1,4 +1,4 @@
-const debug = require('debug')('tediousHelper');
+const debug = require('debug')('tedious-helper');
 const _ = require('lodash');
 const tedious = require('tedious');
 const Connection = tedious.Connection;
@@ -13,12 +13,18 @@ const ReturnTypes = {
   XML: 3,
 };
 
-// Merge parameter definitions with values
-// params: { <paramName>: { value: [value], type: <tedious.TYPES>, (alt: [prop1, ...], options: {...}) }, ... }
-// values: { <paramName>: value, ... }
-// options: { (throw: bool }
-exports.merge = function merge(params, values, options) {
-  debug('tediousHelper.merge');
+/**
+ * Merge parameter definitions with values
+ * @param {Object} params
+ * @param {tedious.TYPE} params.type - The type of parameter (defined in tedious or here)
+ * @param {boolean} [params.required=false] - If the param is required
+ * @param {string|string[]} [params.alt] - Alternate property names in the values object to look for
+ * @param {Object} [params.options] - Any tedious parameter options
+ * @param {Object} values - An object keyed by param names and their value as values
+ * @returns {Object} - The params object with the values assigned
+ */
+exports.merge = function merge(params, values) {
+  debug('merge');
   // params is an object
   if (params && !Array.isArray(params)) {
     _.map(params, (def, name) => {
@@ -34,7 +40,7 @@ exports.merge = function merge(params, values, options) {
           return has;
         });
 
-      if (!found && def.required && _.get(options, 'throw')) {
+      if (!found && def.required) {
         debug('Missing required parameter ' + name);
         throw new Error('Missing required parameter ' + name);
       }
@@ -181,17 +187,37 @@ function exec(fn, cfg, query, params) {
   return p;
 }
 
+/**
+ * Execute a stored procedure
+ * @param {Object} cfg - tedious connection options
+ * @param {string} query - The query to run (stored procedure name)
+ * @param {object} params - An object whose keys are parameter names and values is an object that describes it
+ * @returns {Promise<unknown>}
+ */
 exports.execSP = function (cfg, query, params) {
-  debug('tediousHelper.execSP ' + query);
+  debug('execSP ' + query);
   return exec(tedious.Connection.prototype.callProcedure, cfg, query, params);
 };
 
+/**
+ * Execute arbitrary SQL
+ * @param {Object} cfg - tedious connection options
+ * @param {string} query - The query to run
+ * @param {object} params - An object whose keys are parameter names and values is an object that describes it
+ * @returns {Promise<unknown>}
+ */
 exports.execSQL = function (cfg, query, params) {
-  debug('tediousHelper.execSql ' + query);
+  debug('execSql ' + query);
   return exec(tedious.Connection.prototype.execSql, cfg, query, params);
 };
 
+/**
+ * Execute a SQL batch
+ * @param {Object} cfg - tedious connection options
+ * @param {string} query - The query to run
+ * @returns {Promise<unknown>}
+ */
 exports.execSQLBatch = function (cfg, query) {
-  debug('tediousHelper.execSqlBatch ' + query);
+  debug('execSqlBatch ' + query);
   return exec(tedious.Connection.prototype.execSqlBatch, cfg, query, null);
 };
