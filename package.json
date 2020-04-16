@@ -17,6 +17,6 @@
     "lodash": "^4.17.15"
   },
   "peerDependencies": {
-    "tedious": "3.x <=8.x"
+    "tedious": "3.x <=9"
   }
 }
