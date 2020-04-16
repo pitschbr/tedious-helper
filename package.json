@@ -1,0 +1,19 @@
+{
+  "name": "tediousHelper",
+  "version": "1.0.0",
+  "description": "Simple promise-based utility for tedious to make queries easier",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "^4.1.1",
+    "lodash": "^4.17.15"
+  },
+  "peerDependencies": {
+    "tedious": "3.x <= 8.x"
+  }
+}
