@@ -80,6 +80,7 @@ function connect(cfg) {
       }
       return resolve(conn);
     });
+    conn.connect();
   });
 }
 
