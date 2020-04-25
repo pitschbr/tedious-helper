@@ -71,21 +71,26 @@ function addParams(request, params) {
 
 // creates a connection to db
 function connect(cfg) {
+  debug('connect');
   return new Promise((resolve, reject) => {
     const conn = new Connection(cfg);
     conn.on('connect', function (err) {
       if (err) {
+        debug('connection failed');
         debug(err);
         return reject(err);
       }
+      debug('connection established');
       return resolve(conn);
     });
-    if (_.isFunction(conn.connect))
+    // 8.3 adds a new connect helper function
+    if (_.isFunction(tedious.connect) && _.isFunction(conn.connect))
       conn.connect();
   });
 }
 
 function exec(fn, cfg, query, params) {
+  debug('exec');
   let conn = null;
 
   const p = new Promise((resolve, reject) => {
@@ -148,7 +153,6 @@ function exec(fn, cfg, query, params) {
           debug('exec doneInProc event ' + rowCount + ' ' + more + ' ' + rs.length);
           if (more)
             clearOnNextRow = true;
-          //p.notify({ event: 'doneInProc', rows: rs });
         });
 
         request.on('doneProc', function (rowCount, more, returnValue, rows) {
@@ -158,14 +162,12 @@ function exec(fn, cfg, query, params) {
             params['returnValue'] = { value: returnValue };
           if (more)
             clearOnNextRow = true;
-          //p.notify({ event: 'doneProc', rows: rs });
         });
 
         request.on('done', function (rowCount, more, rows) {
           debug('exec done event ' + rowCount + ' ' + more);
           if (more)
             clearOnNextRow = true;
-          //p.notify({ event: 'done', rows: rs });
         });
 
         addParams(request, params);
@@ -183,6 +185,7 @@ function exec(fn, cfg, query, params) {
   })
     .finally(() => {
       // make sure the connection closes
+      debug('finally');
       if (conn) conn.close();
     });
 
