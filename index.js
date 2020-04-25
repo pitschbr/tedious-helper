@@ -80,7 +80,8 @@ function connect(cfg) {
       }
       return resolve(conn);
     });
-    conn.connect();
+    if (_.isFunction(conn.connect))
+      conn.connect();
   });
 }
 
