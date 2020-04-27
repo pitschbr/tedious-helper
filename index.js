@@ -118,8 +118,11 @@ function exec(fn, cfg, query, params) {
 
         request.on('columnMetadata', function (cols) {
           const colNames = Object.getOwnPropertyNames(cols);
-          if (colNames.length === 1 && cols[colNames].colName.toLowerCase().startsWith('json_'))
+          if (colNames.length === 1 && cols[colNames].colName.toLowerCase().startsWith('json_')) {
+            debug('JSON return type');
             returnType = ReturnTypes.JSON;
+            rs = '';
+          }
         });
 
         request.on('row', function (cols) {
@@ -132,7 +135,7 @@ function exec(fn, cfg, query, params) {
 
           if (returnType === ReturnTypes.JSON) {
             const [col] = Object.getOwnPropertyNames(cols);
-            rs = JSON.parse(cols[col].value);
+            rs += cols[col].value;
           }
           else {
             _.forEach(cols, col => {
@@ -143,29 +146,35 @@ function exec(fn, cfg, query, params) {
         });
 
         request.on('returnValue', function (paramName, value, meta) {
+          debug('returnValue', value);
           // figure how to expose return values
           if (params && _.has(params, paramName))
             params[paramName].value = value;
         });
 
-        // more is true no matter what it seems
+        // 'doneInProc' = completion of a sql statement within sp
         request.on('doneInProc', function (rowCount, more, rows) {
-          debug('exec doneInProc event ' + rowCount + ' ' + more + ' ' + rs.length);
+          debug('exec doneInProc event', rowCount, more, rs.length);
           if (more)
             clearOnNextRow = true;
         });
 
+        // 'doneProc' - completion of stored procedure (through sql or otherwise)
         request.on('doneProc', function (rowCount, more, returnValue, rows) {
-          debug('exec doneProc event ' + rowCount + ' ' + more + ' ' + rs.length);
-          // figure how to expose returnValue
+          debug('exec doneProc event', rowCount, more, rs.length);
+          if (returnType === ReturnTypes.JSON)
+            rs = JSON.parse(rs);
           if (params)
             params['returnValue'] = { value: returnValue };
           if (more)
             clearOnNextRow = true;
         });
 
+        // 'done' - happens on each sql statement completed in a batch
         request.on('done', function (rowCount, more, rows) {
-          debug('exec done event ' + rowCount + ' ' + more);
+          debug('exec done event', rowCount, more);
+          if (returnType === ReturnTypes.JSON)
+            rs = JSON.parse(rs);
           if (more)
             clearOnNextRow = true;
         });
