@@ -93,7 +93,7 @@ function exec(fn, cfg, query, params) {
   debug('exec');
   let conn = null;
 
-  const p = new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     let rs = [];
     let returnType = ReturnTypes.Table; // could be json or xml
     let clearOnNextRow = false; // whether then next row should clear rs
@@ -102,6 +102,7 @@ function exec(fn, cfg, query, params) {
       .then(function (cxn) {
         conn = cxn;
         conn.on('error', function (err) {
+          debug('error');
           debug(err);
           return reject(err);
         });
@@ -116,9 +117,10 @@ function exec(fn, cfg, query, params) {
           return resolve(rs);
         });
 
-        request.on('columnMetadata', function (cols) {
-          const colNames = Object.getOwnPropertyNames(cols);
-          if (colNames.length === 1 && cols[colNames].colName.toLowerCase().startsWith('json_')) {
+        request.on('columnMetadata', function (columns) {
+          debug('columnMetadata');
+          const cols = Object.values(columns);
+          if (cols.length === 1 && cols[0].colName.toLowerCase().startsWith('json_')) {
             debug('JSON return type');
             returnType = ReturnTypes.JSON;
             rs = '';
@@ -134,10 +136,9 @@ function exec(fn, cfg, query, params) {
           }
 
           if (returnType === ReturnTypes.JSON) {
-            const [col] = Object.getOwnPropertyNames(cols);
-            rs += cols[col].value;
-          }
-          else {
+            const [col] = Object.values(cols);
+            rs += col.value;
+          } else {
             _.forEach(cols, col => {
               row[col.metadata.colName] = col.value;
             });
@@ -163,7 +164,7 @@ function exec(fn, cfg, query, params) {
         request.on('doneProc', function (rowCount, more, returnValue, rows) {
           debug('exec doneProc event', rowCount, more, rs.length);
           if (returnType === ReturnTypes.JSON)
-            rs = JSON.parse(rs);
+            rs = rs ? JSON.parse(rs) : [];
           if (params)
             params['returnValue'] = { value: returnValue };
           if (more)
@@ -180,7 +181,7 @@ function exec(fn, cfg, query, params) {
         });
 
         addParams(request, params);
-        debug('request', request);
+        debug('request', query);
 
         fn.call(conn, request);
       })
@@ -190,15 +191,12 @@ function exec(fn, cfg, query, params) {
         if (conn) conn.close();
         return reject(err);
       });
-
-  })
+    })
     .finally(() => {
       // make sure the connection closes
       debug('finally');
       if (conn) conn.close();
     });
-
-  return p;
 }
 
 /**
