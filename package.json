@@ -17,10 +17,10 @@
   "license": "ISC",
   "repository": "github:pitschbr/tedious-helper",
   "dependencies": {
-    "debug": "^4.1.1",
-    "lodash": "^4.17.19"
+    "debug": "^4.3.2",
+    "lodash": "^4.17.20"
   },
   "peerDependencies": {
-    "tedious": ">= 3.x < 10"
+    "tedious": ">= 3.x < 12"
   }
 }
